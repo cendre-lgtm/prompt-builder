@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>拉斐爾提示詞藝廊 2.0</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: #FDFBF7;
+        }
+        .parchment {
+            background-color: #F9F7F2;
+        }
+        /* 自定義捲軸 */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #3D2C1E;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #D4AF37;
+            border-radius: 10px;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-[#5D4037] min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#8B4513] text-[#F4F1E9] py-8 px-4 shadow-2xl relative border-b-4 border-[#D4AF37] shrink-0">
+        <div class="max-w-7xl mx-auto text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tighter flex items-center justify-center gap-3 text-[#F4F1E9]">
+                🎨 拉斐爾提示詞藝廊 2.0
+            </h1>
+        </div>
+    </header>
+
+    <!-- Main Content Area: 左右並排 -->
+    <main class="max-w-7xl mx-auto w-full flex-grow p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        
+        <!-- 左側：輸入區域 -->
+        <section class="space-y-6 flex flex-col">
+            <!-- 模式切換按鈕 -->
+            <div class="bg-[#E5E1D1] p-1.5 rounded-2xl flex shadow-inner">
+                <button id="btn-general" onclick="setMode('general')" class="flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg">
+                    ⚡ 一般模式 (靈感直覺敘述)
+                </button>
+                <button id="btn-expert" onclick="setMode('expert')" class="flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10">
+                    🧠 專家模式 (PARTS 框架)
+                </button>
+            </div>
+
+            <!-- 輸入卡片 -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-[#E5E1D1] space-y-6">
+                
+                <!-- 一般模式輸入 -->
+                <div id="input-general" class="space-y-4">
+                    <div class="flex items-center justify-between text-[#8B4513] mb-2 font-bold uppercase tracking-widest text-sm border-b border-[#F4F1E9] pb-2">
+                        <span>" 老師的想法 (請用一句話描述)</span>
+                    </div>
+                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中化學老師，我想幫學生出一份關於週期表的趣味學習單..."></textarea>
+                    <p class="text-xs text-[#8B4513]/60 italic">系統將自動依照 PTCF 架構 (Persona, Task, Context, Format) 補全您的提示詞。</p>
+                </div>
+
+                <!-- 專家模式輸入 (預設隱藏) -->
+                <div id="input-expert" class="hidden space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">P - 您的身分 (Persona)</label>
+                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="國小自然科老師">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">A - 執行目標 (Aim)</label>
+                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="生成單元學習單">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">R - 目標對象 (Recipients)</label>
+                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="國小五年級學生">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">S - 產出結構 (Structure)</label>
+                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="包含實驗觀察紀錄的表格">
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest text-center">T - 教學主題 (Theme)</label>
+                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="浮力與生活應用">
+                    </div>
+                </div>
+
+                <!-- 進化層級按鈕列 -->
+                <div class="pt-6 border-t border-[#F4F1E9]">
+                    <label class="block text-center text-xs font-bold text-[#8B4513] mb-4 uppercase tracking-widest">進化層級 (Levels)</label>
+                    <div class="flex bg-[#F9F7F2] p-1.5 rounded-2xl gap-2">
+                        <button onclick="setLevel(1)" id="lvl-1" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all bg-[#8B4513] text-white shadow-lg">Level 1</button>
+                        <button onclick="setLevel(2)" id="lvl-2" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20">Level 2</button>
+                        <button onclick="setLevel(3)" id="lvl-3" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20">Level 3</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 右側：輸出區域 -->
+        <section class="flex flex-col h-full space-y-6">
+            <div class="bg-[#4A3728] text-[#F4F1E9] p-6 rounded-3xl shadow-2xl flex flex-col min-h-[500px] border-t-8 border-[#D4AF37] relative overflow-hidden h-full">
+                <!-- 裝飾性背景印記 -->
+                <div class="absolute -bottom-10 -right-10 opacity-5 pointer-events-none">
+                    <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
+                </div>
+
+                <div class="flex justify-between items-center mb-5 relative z-10">
+                    <h3 class="text-lg font-bold flex items-center gap-2 tracking-widest">
+                        ✨ <span id="output-title">提示詞生成預覽</span>
+                    </h3>
+                    <button onclick="copyToClipboard()" class="bg-[#D4AF37] hover:bg-[#B8962D] text-[#4A3728] px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95">
+                        <span id="copy-text">點我複製成品</span>
+                    </button>
+                </div>
+                
+                <div class="bg-[#3D2C1E] p-6 rounded-2xl overflow-y-auto flex-grow border border-white/5 custom-scrollbar relative z-10">
+                    <pre id="output-text" class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-[#DCD6CC]"></pre>
+                </div>
+            </div>
+
+            <!-- 層級說明卡片 -->
+            <div class="bg-[#D4AF37]/10 border-2 border-dashed border-[#D4AF37] p-5 rounded-2xl flex items-center gap-5 transition-all">
+                <div id="lvl-indicator" class="w-14 h-14 shrink-0 bg-[#8B4513] text-[#F4F1E9] rounded-full flex items-center justify-center text-2xl font-bold shadow-xl ring-4 ring-[#D4AF37]/20">1</div>
+                <div>
+                    <h4 id="lvl-title" class="font-bold text-[#8B4513] text-base mb-1">基礎寫作：專注於角色語氣。</h4>
+                    <p id="lvl-desc" class="text-xs md:text-sm opacity-90 leading-snug italic">這是一個紮實的起點，能確保 AI 給出專業且符合老師身分的回答。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="max-w-7xl mx-auto w-full text-center py-8 text-[#6B5B4B]/70 text-xs md:text-sm italic shrink-0 space-y-2">
+        <p class="font-bold border-t border-[#D4AF37]/30 pt-4">提示詞框架和引導是參考 @iamAImaster 和 Google PARTS</p>
+        <p>&copy; 2024 Raphael's Gallery | 將教學視為藝術的實驗場</p>
+    </footer>
+
+    <script>
+        // 狀態管理
+        let currentMode = 'general';
+        let currentLevel = 1;
+
+        // 初始化內容
+        window.onload = () => {
+            document.getElementById('general-input').value = "我是國中國文老師，我想針對《背影》這課幫學生出一份有層次的閱讀學習單，要有五題選擇題。";
+            updateOutput();
+        };
+
+        function setMode(mode) {
+            currentMode = mode;
+            const btnGen = document.getElementById('btn-general');
+            const btnExp = document.getElementById('btn-expert');
+            const inputGen = document.getElementById('input-general');
+            const inputExp = document.getElementById('input-expert');
+            const title = document.getElementById('output-title');
+
+            if (mode === 'general') {
+                btnGen.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg";
+                btnExp.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10";
+                inputGen.classList.remove('hidden');
+                inputExp.classList.add('hidden');
+                title.innerText = "PTCF 架構指令";
+            } else {
+                btnExp.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg";
+                btnGen.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10";
+                inputExp.classList.remove('hidden');
+                inputGen.classList.add('hidden');
+                title.innerText = "PARTS 框架指令";
+            }
+            updateOutput();
+        }
+
+        function setLevel(lvl) {
+            currentLevel = lvl;
+            document.querySelectorAll('.lvl-btn').forEach((btn, idx) => {
+                if (idx + 1 === lvl) {
+                    btn.className = "lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all bg-[#8B4513] text-white shadow-lg";
+                } else {
+                    btn.className = "lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20";
+                }
+            });
+
+            const indicator = document.getElementById('lvl-indicator');
+            const title = document.getElementById('lvl-title');
+            const desc = document.getElementById('lvl-desc');
+            indicator.innerText = lvl;
+
+            if (lvl === 1) {
+                title.innerText = "基礎寫作：專注於角色語氣。";
+                desc.innerText = "這是一個紮實的起點，能確保 AI 給出專業且符合老師身分的回答。";
+            } else if (lvl === 2) {
+                title.innerText = "進階排版：表格與素養思考。";
+                desc.innerText = "增加了結構化呈現，AI 會主動使用表格整理資訊，並在文末增加引導問題。";
+            } else {
+                title.innerText = "全能教育家：圖像生成與畫布連動。";
+                desc.innerText = "最強大的模式。AI 會主動為您的教學內容繪製配圖，並優化在 Canvas 上的顯示。";
+            }
+            updateOutput();
+        }
+
+        function updateOutput() {
+            let result = "";
+            if (currentMode === 'general') {
+                const input = document.getElementById('general-input').value;
+                result = `你是一位教學經驗豐富且精通 AI 提示詞工程的「教育設計專家」。你的任務是將老師的初步想法，轉化為 Google 官方推薦的黃金提示詞架構。
+
+請針對以下老師的需求，產出一個完美的 Gem 指令：
+需求內容：「${input}」
+
+[產出要求]：
+請根據 PTCF 公式（Persona 角色, Task 任務, Context 情境, Format 格式）產出指令。
+1. **Persona**：設定一個具備該學科專業，且擅長啟發式教學的角色。
+2. **Task**：明確定義產出目標（如：設計教案、生成測驗）。
+3. **Context**：補充學習者對象與教學現場的細節限制。
+4. **Format**：要求清晰的排版、表格或條列式呈現。
+
+[Level ${currentLevel} 進化要求]：
+${currentLevel === 1 ? '專注於文字描述的精準度與親和力。' : ''}
+${currentLevel === 2 ? '要求 AI 使用 Markdown 結構與表格，並在文末增加 3 題素養延伸題。' : ''}
+${currentLevel === 3 ? '要求 AI 主動調用 image_generation 工具生成教學配圖，並優化 Canvas 格式。' : ''}`;
+            } else {
+                const id = document.getElementById('expert-identity').value;
+                const aim = document.getElementById('expert-aim').value;
+                const rec = document.getElementById('expert-recipients').value;
+                const stru = document.getElementById('expert-structure').value;
+                const theme = document.getElementById('expert-theme').value;
+
+                result = `你是一位專業的教育 AI 助手。請根據以下 PARTS 架構執行任務：
+
+[P] Persona (角色身分)：
+你是一位專業的「${id}」，具備豐富的教學經驗，擅長以引導式教學啟發學生。
+
+[A] Aim (執行目標)：
+你的核心任務是協助老師「${aim}」，確保內容準確且具備教育價值。
+
+[R] Recipients (對象)：
+產出的內容是專為「${rec}」設計的，請確保遣詞用字符合該年齡層的認知程度。
+
+[T] Theme (教學主題)：
+所有的內容請圍繞著「${theme}」展開。
+
+[S] Structure (結構格式)：
+請以「${stru}」呈現結果。`;
+
+                if (currentLevel >= 2) result += `\n\n[進階設定]：優先使用表格對照，並提供素養導向提問。`;
+                if (currentLevel === 3) result += `\n\n[頂級設定]：主動調用繪圖工具製作教學配圖，並優化 Canvas 格式。`;
+            }
+            document.getElementById('output-text').innerText = result;
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('output-text').innerText;
+            const btn = document.getElementById('copy-text');
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const oldText = btn.innerText;
+            btn.innerText = "✅ 已成功複製成品";
+            setTimeout(() => {
+                btn.innerText = oldText;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
