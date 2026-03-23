@@ -654,9 +654,9 @@
             </div>
           </div>
 
-          <!-- Tools 選擇 -->
-          <div class="tools-section">
-            <div class="tools-title">🛠️ 附加 Gemini 工具（Level 2 / 3 適用）</div>
+          <!-- Tools 選擇（Level 2 / 3 才顯示） -->
+          <div class="tools-section" id="tools-section" style="display:none; margin-top:14px;">
+            <div class="tools-title">🛠️ 附加 Gemini 工具</div>
             <div class="tools-grid">
               <!-- Google Maps with scenario sub-selector -->
               <div style="grid-column:1/-1; border:1.5px solid #B8DDE8; border-radius:8px; background:#F0F8FC; padding:10px 12px; margin-bottom:2px;">
@@ -984,10 +984,13 @@ function setLevel(l) {
   });
   const descs = {
     1: '📝 <strong>Level 1 — 純文字輸出</strong>：AI 以角色身分給出專業文字回應，適合需要簡潔乾淨輸出的場景。',
-    2: '📊 <strong>Level 2 — 表格強化</strong>：AI 主動以 Markdown 表格呈現資訊，並在文末附上素養導向延伸思考題。',
-    3: '🚀 <strong>Level 3 — 全能工具模式</strong>：AI 依需求自動調用上方勾選的工具（Create Image / Video / Music / Canvas 等），並優化 Canvas 視覺排版。',
+    2: '📊 <strong>Level 2 — 表格強化</strong>：AI 主動以 Markdown 表格呈現資訊，並在文末附上素養導向延伸思考題。附加工具可選用。',
+    3: '🚀 <strong>Level 3 — 全能工具模式</strong>：AI 依需求自動調用下方勾選的工具（Create Image / Video / Music / Canvas 等），並優化 Canvas 視覺排版。',
   };
   document.getElementById('lv-desc').innerHTML = descs[l];
+  // 只有 Level 2 / 3 才顯示附加工具區
+  const toolsEl = document.getElementById('tools-section');
+  if (toolsEl) toolsEl.style.display = l >= 2 ? '' : 'none';
   updateOutput();
 }
 
