@@ -66,7 +66,7 @@
                     <div class="flex items-center justify-between text-[#8B4513] mb-2 font-bold uppercase tracking-widest text-sm border-b border-[#F4F1E9] pb-2">
                         <span>" 老師的想法 (請用一句話描述)</span>
                     </div>
-                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中歷史老師，我想針對《文藝復興》這課幫學生出一份有層次的閱讀學習單..."></textarea>
+                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中歷史老師，我想規劃一趟『台南府城』的半日走讀行程..."></textarea>
                     <p class="text-xs text-[#8B4513]/60 italic">填入您的身分與需求，系統將自動套用 PTCF 金鑰公式產出完整的 Gem 指令。</p>
                 </div>
 
@@ -75,24 +75,24 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">P - 您的身分 (Persona)</label>
-                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高中化學老師">
+                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高中地理老師">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">A - 執行目標 (Aim)</label>
-                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="生成測驗卷">
+                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="安排校外走讀行程與路線">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">R - 目標對象 (Recipients)</label>
-                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高一學生">
+                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高二學生">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">S - 產出結構 (Structure)</label>
-                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="10題單選題與解析">
+                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="詳細的時間與地點表格">
                         </div>
                     </div>
                     <div class="pt-2">
                         <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest text-center">T - 教學主題 (Theme)</label>
-                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="理想氣體方程式">
+                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="台北大稻埕的商業發展史">
                     </div>
                 </div>
 
@@ -151,9 +151,9 @@
         let currentMode = 'general';
         let currentLevel = 1;
 
-        // 初始化內容
+        // 初始化內容 (改成會觸發地圖行程的範例)
         window.onload = () => {
-            document.getElementById('general-input').value = "我是高中歷史老師，我想針對《文藝復興》這課幫學生出一份有層次的閱讀學習單，要有五題選擇題。";
+            document.getElementById('general-input').value = "我是高中歷史老師，我想規劃一趟『台南府城』的半日走讀行程，請幫我安排 4 個歷史景點的路線。";
             updateOutput();
         };
 
@@ -204,7 +204,7 @@
                 desc.innerText = "增加了結構化呈現，AI 會主動使用表格整理資訊，並在文末增加引導問題。";
             } else {
                 title.innerText = "全能教育家：智慧工具與畫布連動。";
-                desc.innerText = "最強大的模式。系統會依據您的需求，自動引導 AI 呼叫合適的多媒體或研究工具 (如 Create video, Deep research 等) 並優化 Canvas 排版。";
+                desc.innerText = "最強大的模式。系統會依據您的需求，自動引導 AI 呼叫合適的多媒體或研究工具 (如 Google Maps, Create video) 並優化 Canvas 排版。";
             }
             updateOutput();
         }
@@ -219,6 +219,8 @@
                 const isEnglish = lowerInput.includes('英文') || lowerInput.includes('english') || lowerInput.includes('外語') || lowerInput.includes('雙語');
                 // 動態偵測是否包含數學或理化需求
                 const isMathScience = lowerInput.includes('數學') || lowerInput.includes('物理') || lowerInput.includes('化學') || lowerInput.includes('公式') || lowerInput.includes('方程式');
+                // 動態偵測是否包含地圖、行程、路線需求
+                const isMapTriggered = /(地圖|地標|導航|路線|google map|走讀|戶外教學|校外教學|行程)/.test(lowerInput);
 
                 // 動態偵測合適的擴充工具 (針對 Level 3)
                 let toolAction = "根據教學情境需求，主動評估並調用合適的工具（如 Deep research、Create image 等）來輔助內容，同時";
@@ -228,15 +230,17 @@
                 if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(lowerInput)) tools.push('Create image');
                 if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(lowerInput)) tools.push('Deep research');
                 if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(lowerInput)) tools.push('Guided learning');
-                if (/(地圖|地標|導航|路線|google map)/.test(lowerInput)) tools.push('Google Maps 擴充功能');
+                if (isMapTriggered) tools.push('Google Maps 擴充功能');
                 
                 if (tools.length > 0) {
-                    let mapsConstraint = tools.includes('Google Maps 擴充功能') ? " (請務必直接在畫面上生成包含景點標示的互動式 Google 地圖，並提供具體地點連結)" : "";
-                    toolAction = `主動調用 ${tools.join('、')} 來產出對應的教學資源${mapsConstraint}，並`;
+                    toolAction = `主動調用 ${tools.join('、')} 來產出對應的教學資源，並`;
                 }
 
                 let formatText = "";
-                if (currentLevel === 1) {
+                // ✨ 這裡完全致敬 AI Master 的地圖表格咒語 ✨
+                if (isMapTriggered) {
+                    formatText = "請輸出為一個表格，欄位務必包含「時間/順序 (Time)」、「地點 (Location)」、「教學價值 (Why It's Worth It)」、以及「Google Maps Link」。請務必觸發 Google Maps 擴充功能，將路線與景點直接渲染在右側的互動式地圖上。";
+                } else if (currentLevel === 1) {
                     formatText = "請使用清晰的條列式或結構化段落呈現結果，確保易於閱讀。";
                 } else if (currentLevel === 2) {
                     formatText = "請優先使用 Markdown 表格進行對照或呈現，並在最後提供 3 個素養導向的延伸思考題。";
@@ -268,6 +272,8 @@
                 const isEnglish = combinedExpertInput.includes('英文') || combinedExpertInput.includes('english') || combinedExpertInput.includes('雙語') || combinedExpertInput.includes('外語');
                 // 動態偵測專家模式中是否包含數理化需求
                 const isMathScience = combinedExpertInput.includes('數學') || combinedExpertInput.includes('物理') || combinedExpertInput.includes('化學') || combinedExpertInput.includes('公式') || combinedExpertInput.includes('方程式');
+                // 動態偵測專家模式中是否包含地圖需求
+                const isMapTriggered = /(地圖|地標|導航|路線|google map|走讀|戶外教學|校外教學|行程)/.test(combinedExpertInput);
                 
                 // 動態偵測合適的擴充工具 (針對 Level 3 專家模式)
                 let expertToolAction = "依據教學情境主動調用合適的工具（如 Deep research、Create image 等）";
@@ -277,11 +283,10 @@
                 if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(combinedExpertInput)) expertTools.push('Create image');
                 if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(combinedExpertInput)) expertTools.push('Deep research');
                 if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(combinedExpertInput)) expertTools.push('Guided learning');
-                if (/(地圖|地標|導航|路線|google map)/.test(combinedExpertInput)) expertTools.push('Google Maps 擴充功能');
+                if (isMapTriggered) expertTools.push('Google Maps 擴充功能');
                 
                 if (expertTools.length > 0) {
-                    let mapsConstraint = expertTools.includes('Google Maps 擴充功能') ? " (請務必直接在畫面上生成包含景點標示的互動式 Google 地圖)" : "";
-                    expertToolAction = `主動調用 ${expertTools.join('、')} 製作相關教學輔助資源${mapsConstraint}`;
+                    expertToolAction = `主動調用 ${expertTools.join('、')} 製作相關教學輔助資源`;
                 }
 
                 const languageConstraint = isEnglish
@@ -290,10 +295,16 @@
 
                 let extraIndex = 2;
                 let formatConstraint = "";
-                if (currentLevel >= 2) {
+
+                // ✨ 專家模式加入地圖強制表格邏輯 ✨
+                if (isMapTriggered) {
+                    formatConstraint += `${extraIndex}. 地圖行程排版：請輸出為一個表格，欄位包含「時間/順序 (Time)」、「地點 (Location)」、「教學價值 (Why It's Worth It)」與「Google Maps Link」，並確保呼叫 Google Maps 擴充功能將景點顯示於右側地圖上。\n`;
+                    extraIndex++;
+                } else if (currentLevel >= 2) {
                     formatConstraint += `${extraIndex}. 排版強化：請優先使用 Markdown 表格呈現，並提供延伸思考問題。\n`;
                     extraIndex++;
                 }
+
                 if (currentLevel === 3) {
                     formatConstraint += `${extraIndex}. 智慧工具與畫布：請${expertToolAction}，並針對 Canvas 格式進行整體視覺與排版的優化。\n`;
                     extraIndex++;
