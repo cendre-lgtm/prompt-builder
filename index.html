@@ -66,7 +66,7 @@
                     <div class="flex items-center justify-between text-[#8B4513] mb-2 font-bold uppercase tracking-widest text-sm border-b border-[#F4F1E9] pb-2">
                         <span>" 老師的想法 (請用一句話描述)</span>
                     </div>
-                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中化學老師，我想要做一個可以讓我把文本輸入後就可以生成素養提的填空格式的學習單..."></textarea>
+                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中歷史老師，我想針對《文藝復興》這課幫學生出一份有層次的閱讀學習單..."></textarea>
                     <p class="text-xs text-[#8B4513]/60 italic">填入您的身分與需求，系統將自動套用 PTCF 金鑰公式產出完整的 Gem 指令。</p>
                 </div>
 
@@ -75,24 +75,24 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">P - 您的身分 (Persona)</label>
-                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="國小自然科老師">
+                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高中化學老師">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">A - 執行目標 (Aim)</label>
-                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="生成單元學習單">
+                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="生成測驗卷">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">R - 目標對象 (Recipients)</label>
-                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="國小五年級學生">
+                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高一學生">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">S - 產出結構 (Structure)</label>
-                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="包含實驗觀察紀錄的表格">
+                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="10題單選題與解析">
                         </div>
                     </div>
                     <div class="pt-2">
                         <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest text-center">T - 教學主題 (Theme)</label>
-                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="浮力與生活應用">
+                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="理想氣體方程式">
                     </div>
                 </div>
 
@@ -153,7 +153,7 @@
 
         // 初始化內容
         window.onload = () => {
-            document.getElementById('general-input').value = "我是高中英文老師，我想要做一個可以讓我把文本輸入後就可以生成素養提的填空格式的學習單。";
+            document.getElementById('general-input').value = "我是高中歷史老師，我想針對《文藝復興》這課幫學生出一份有層次的閱讀學習單，要有五題選擇題。";
             updateOutput();
         };
 
@@ -216,6 +216,8 @@
                 
                 // 動態偵測是否包含英文或雙語需求
                 const isEnglish = input.includes('英文') || input.includes('English') || input.includes('外語') || input.includes('雙語');
+                // 動態偵測是否包含數學或理化需求
+                const isMathScience = input.includes('數學') || input.includes('物理') || input.includes('化學') || input.includes('公式') || input.includes('方程式');
 
                 let formatText = "";
                 if (currentLevel === 1) {
@@ -231,8 +233,12 @@
                     ? "教學素材與題目請依教學需求主要使用「英文」，然而針對學生的輔助說明、提示或解析，請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體字。" 
                     : "請務必一律使用台灣繁體中文 (zh-TW) 輸出所有內容，絕不可混雜簡體字。";
 
+                const mathConstraint = isMathScience
+                    ? " 若涉及數學或理化公式，請務必使用標準 LaTeX 語法（行內 $...$，獨立 $$...$$）輸出，以確保符號正確渲染。"
+                    : "";
+
                 // 完全致敬 AI Master 的連續段落寫法 (Persona -> Task -> Context -> Format)
-                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保產出的內容符合教育現場所需，並考慮學習者的認知程度，若資訊不足請主動給予專業建議。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}`;
+                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保產出的內容符合教育現場所需，並考慮學習者的認知程度，若資訊不足請主動給予專業建議。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}${mathConstraint}`;
             } else {
                 const id = document.getElementById('expert-identity').value;
                 const aim = document.getElementById('expert-aim').value;
@@ -242,10 +248,27 @@
 
                 // 動態偵測專家模式中是否包含英文需求
                 const isEnglish = id.includes('英文') || aim.includes('英文') || theme.includes('英文') || stru.includes('雙語') || stru.includes('英文');
+                // 動態偵測專家模式中是否包含數理化需求
+                const isMathScience = id.includes('數學') || id.includes('物理') || id.includes('化學') || aim.includes('公式') || theme.includes('方程式') || theme.includes('物理') || theme.includes('化學') || theme.includes('數學') || stru.includes('公式');
                 
                 const languageConstraint = isEnglish
                     ? "1. 語言防護：教學素材與題目請依需求使用「英文」，但教師端的說明與解析請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體中文。"
                     : "1. 語言防護：請務必「一律使用台灣繁體中文 (zh-TW)」產出所有內容（包含 Canvas 畫布排版與圖片說明），絕不可混雜簡體中文。";
+
+                let extraIndex = 2;
+                let formatConstraint = "";
+                if (currentLevel >= 2) {
+                    formatConstraint += `${extraIndex}. 排版強化：請優先使用 Markdown 表格呈現，並提供延伸思考問題。\n`;
+                    extraIndex++;
+                }
+                if (currentLevel === 3) {
+                    formatConstraint += `${extraIndex}. 視覺與畫布：主動調用繪圖工具製作教學配圖，並針對 Canvas 格式進行優化。\n`;
+                    extraIndex++;
+                }
+                
+                const mathConstraint = isMathScience
+                    ? `${extraIndex}. 公式排版：若涉及數學或理化公式，請務必使用標準 LaTeX 語法（行內 $...$，獨立 $$...$$）輸出，確保符號正確渲染。`
+                    : "";
 
                 result = `你是一位專業的教育 AI 助手。請根據以下 PARTS 框架執行任務：
 
@@ -266,7 +289,7 @@
 
 [語言與額外要求]
 ${languageConstraint}
-${currentLevel >= 2 ? '2. 排版強化：請優先使用 Markdown 表格呈現，並提供延伸思考問題。\n' : ''}${currentLevel === 3 ? '3. 視覺與畫布：主動調用繪圖工具製作教學配圖，並針對 Canvas 格式進行優化。' : ''}`.trim();
+${formatConstraint}${mathConstraint}`.trim();
             }
             document.getElementById('output-text').innerText = result;
         }
