@@ -214,23 +214,38 @@
             if (currentMode === 'general') {
                 const input = document.getElementById('general-input').value;
                 
+                // 動態偵測是否包含英文或雙語需求
+                const isEnglish = input.includes('英文') || input.includes('English') || input.includes('外語') || input.includes('雙語');
+
                 let formatText = "";
                 if (currentLevel === 1) {
                     formatText = "請使用清晰的條列式或結構化段落呈現結果，確保易於閱讀。";
                 } else if (currentLevel === 2) {
                     formatText = "請優先使用 Markdown 表格進行對照或呈現，並在最後提供 3 個素養導向的延伸思考題。";
                 } else {
-                    formatText = "請主動調用 image_generation 工具產出教材配圖（建議使用科學圖解或古典繪畫風格），並優化在 Canvas 上的排版美感（請嚴格確保 Canvas 內所有文字皆為繁體中文）。";
+                    formatText = `請主動調用 image_generation 工具產出教材配圖（建議使用科學圖解或古典繪畫風格），並優化在 Canvas 上的排版美感${isEnglish ? '' : '（請嚴格確保 Canvas 內所有文字皆為繁體中文）'}。`;
                 }
                 
+                // 根據語系動態調整限制
+                const languageConstraint = isEnglish 
+                    ? "教學素材與題目請依教學需求主要使用「英文」，然而針對學生的輔助說明、提示或解析，請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體字。" 
+                    : "請務必一律使用台灣繁體中文 (zh-TW) 輸出所有內容，絕不可混雜簡體字。";
+
                 // 完全致敬 AI Master 的連續段落寫法 (Persona -> Task -> Context -> Format)
-                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保產出的內容符合教育現場所需，並考慮學習者的認知程度，若資訊不足請主動給予專業建議。語言要求 (Language)：請務必一律使用台灣繁體中文 (zh-TW) 輸出所有內容，絕不可混雜簡體字。輸出格式 (Format)：${formatText}`;
+                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保產出的內容符合教育現場所需，並考慮學習者的認知程度，若資訊不足請主動給予專業建議。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}`;
             } else {
                 const id = document.getElementById('expert-identity').value;
                 const aim = document.getElementById('expert-aim').value;
                 const rec = document.getElementById('expert-recipients').value;
                 const stru = document.getElementById('expert-structure').value;
                 const theme = document.getElementById('expert-theme').value;
+
+                // 動態偵測專家模式中是否包含英文需求
+                const isEnglish = id.includes('英文') || aim.includes('英文') || theme.includes('英文') || stru.includes('雙語') || stru.includes('英文');
+                
+                const languageConstraint = isEnglish
+                    ? "1. 語言防護：教學素材與題目請依需求使用「英文」，但教師端的說明與解析請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體中文。"
+                    : "1. 語言防護：請務必「一律使用台灣繁體中文 (zh-TW)」產出所有內容（包含 Canvas 畫布排版與圖片說明），絕不可混雜簡體中文。";
 
                 result = `你是一位專業的教育 AI 助手。請根據以下 PARTS 框架執行任務：
 
@@ -250,7 +265,7 @@
 請以「${stru}」呈現結果。
 
 [語言與額外要求]
-1. 語言防護：請務必「一律使用台灣繁體中文 (zh-TW)」產出所有內容（包含 Canvas 畫布排版與圖片說明），絕不可混雜簡體中文。
+${languageConstraint}
 ${currentLevel >= 2 ? '2. 排版強化：請優先使用 Markdown 表格呈現，並提供延伸思考問題。\n' : ''}${currentLevel === 3 ? '3. 視覺與畫布：主動調用繪圖工具製作教學配圖，並針對 Canvas 格式進行優化。' : ''}`.trim();
             }
             document.getElementById('output-text').innerText = result;
