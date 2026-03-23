@@ -1,360 +1,1192 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拉斐爾提示詞藝廊 2.0</title>
-    <!-- 引入 Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 引入 Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Noto Serif TC', serif;
-            background-color: #FDFBF7;
-        }
-        .parchment {
-            background-color: #F9F7F2;
-        }
-        /* 自定義捲軸 */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #3D2C1E;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #D4AF37;
-            border-radius: 10px;
-        }
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>教師 Gem 提示詞工坊</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1209;
+    --paper: #FAF7F2;
+    --aged: #F0EBE0;
+    --gold: #C8960C;
+    --gold-light: #E8B84B;
+    --gold-pale: #FDF3D7;
+    --rust: #8B3A0F;
+    --rust-dark: #5C2408;
+    --sage: #3D5A3E;
+    --muted: #7A6B58;
+    --border: #DDD5C0;
+    --shadow: rgba(26,18,9,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* Decorative grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--rust-dark);
+    border-bottom: 3px solid var(--gold);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header-badge {
+    width: 48px; height: 48px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px rgba(200,150,12,0.25);
+  }
+  header h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.05em;
+  }
+  header p {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 2px;
+  }
+
+  /* LAYOUT */
+  .container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 900px) {
+    .container { grid-template-columns: 1fr; }
+  }
+
+  /* CARDS */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px var(--shadow);
+  }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--aged);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--aged);
+  }
+  .card-header .label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .card-body { padding: 20px; }
+
+  /* MODE TOGGLE */
+  .mode-toggle {
+    display: flex;
+    background: var(--aged);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 9px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    color: var(--muted);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .mode-btn.active {
+    background: var(--rust);
+    color: white;
+    box-shadow: 0 2px 8px rgba(139,58,15,0.35);
+  }
+
+  /* SUBJECT SELECTOR */
+  .subject-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .subject-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    color: var(--muted);
+  }
+  .subject-chip:hover { border-color: var(--gold); color: var(--rust); }
+  .subject-chip.active { background: var(--gold-pale); border-color: var(--gold); color: var(--rust); font-weight: 700; }
+
+  /* GRADE SELECTOR */
+  .grade-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .grade-chip {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+    color: var(--muted);
+  }
+  .grade-chip:hover { border-color: var(--sage); color: var(--sage); }
+  .grade-chip.active { background: var(--sage); border-color: var(--sage); color: white; }
+
+  .grade-sub-chip {
+    padding: 3px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: white;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+  .grade-sub-chip:hover { border-color: var(--sage); color: var(--sage); }
+  .grade-sub-chip.active { background: var(--sage); border-color: var(--sage); color: white; }
+
+  /* TEXTAREA & INPUT */
+  textarea, input[type="text"] {
+    width: 100%;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    background: var(--paper);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  textarea:focus, input[type="text"]:focus { border-color: var(--gold); }
+  textarea { line-height: 1.7; }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .hint strong { color: var(--rust); font-style: normal; }
+
+  /* PARTS GRID */
+  .parts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .parts-grid .full { grid-column: 1/-1; }
+  .field-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .parts-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--rust);
+    color: white;
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  /* TOOLS SECTION */
+  .tools-section {
+    border: 1px dashed var(--gold);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--gold-pale);
+    margin-top: 14px;
+  }
+  .tools-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rust);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+  }
+  .tool-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .tool-check:hover { border-color: var(--gold); }
+  .tool-check.checked { border-color: var(--gold); background: var(--gold-pale); font-weight: 700; color: var(--rust); }
+  .tool-check input { display: none; }
+  .tool-icon { font-size: 15px; }
+
+  /* LEVEL SELECTOR */
+  .level-section {
+    margin-top: 16px;
+    border-top: 1px solid var(--aged);
+    padding-top: 16px;
+  }
+  .level-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .level-cards {
+    display: flex;
+    gap: 8px;
+  }
+  .level-card {
+    flex: 1;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .level-card:hover { border-color: var(--gold-light); }
+  .level-card.active { border-color: var(--rust); background: #FFF8F5; }
+  .level-card .lv-num {
+    font-size: 22px;
+    font-weight: 900;
+    font-family: 'Noto Serif TC', serif;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .level-card.active .lv-num { color: var(--rust); }
+  .level-card .lv-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .level-card.active .lv-name { color: var(--rust-dark); }
+  .level-desc {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--aged);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* OUTPUT PANEL */
+  .output-card {
+    background: var(--rust-dark);
+    border: 1px solid rgba(200,150,12,0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(92,36,8,0.25);
+    position: sticky;
+    top: 24px;
+  }
+  .output-header {
+    padding: 16px 20px;
+    background: var(--rust);
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .output-title {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: var(--gold);
+    color: var(--rust-dark);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { background: var(--gold-light); }
+  .copy-btn:active { transform: scale(0.97); }
+  .copy-btn.success { background: #4CAF50; color: white; }
+
+  .output-body {
+    padding: 20px;
+    min-height: 400px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .output-body::-webkit-scrollbar { width: 5px; }
+  .output-body::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+  .output-body::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
+  #output-text {
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #E8DDD0;
+    white-space: pre-wrap;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--aged); margin: 20px 0; }
+
+  /* Animate output changes */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .output-flash { animation: fadeIn 0.3s ease; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* MAP SCENARIO CARDS */
+  .map-scenario-bar {
+    display: none;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .map-scenario-bar.visible { display: flex; }
+  .map-scenario-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .map-scenario-btn:hover { border-color: #2D7D9A; background: #F0F8FC; }
+  .map-scenario-btn.active { border-color: #2D7D9A; background: #EAF5FA; }
+  .map-scenario-btn .ms-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+  .map-scenario-btn .ms-title { font-size: 12px; font-weight: 700; color: #1A4D5E; display: block; }
+  .map-scenario-btn .ms-desc { font-size: 11px; color: var(--muted); margin-top: 2px; display: block; }
+
+  /* MAP TRIGGER BADGE on output */
+  .map-trigger-badge {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    background: #1A4D5E;
+    border: 1px solid #2D9ABB;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: #A8DFF0;
+    line-height: 1.5;
+  }
+  .map-trigger-badge.visible { display: flex; }
+  .map-trigger-badge strong { color: #5DD4F5; }
+
+  /* MAP TOGGLE in general mode */
+  .map-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--aged);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    transition: all 0.2s;
+  }
+  .map-toggle-row:hover { border-color: #2D9ABB; }
+  .map-toggle-row.active { background: #EAF5FA; border-color: #2D7D9A; }
+  .map-toggle-row input[type=checkbox] { width: 16px; height: 16px; accent-color: #2D7D9A; cursor: pointer; }
+  .map-toggle-label { font-size: 13px; font-weight: 600; color: var(--ink); flex: 1; }
+  .map-toggle-label span { font-size: 11px; font-weight: 400; color: var(--muted); display: block; margin-top: 1px; }
+  .map-toggle-label .map-badge { display: inline-block; background: #2D7D9A; color: white; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; }
+</style>
 </head>
-<body class="text-[#5D4037] min-h-screen flex flex-col">
+<body>
 
-    <!-- Header -->
-    <header class="bg-[#8B4513] text-[#F4F1E9] py-8 px-4 shadow-2xl relative border-b-4 border-[#D4AF37] shrink-0">
-        <div class="max-w-7xl mx-auto text-center">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tighter flex items-center justify-center gap-3 text-[#F4F1E9]">
-                🎨 拉斐爾提示詞藝廊 2.0
-            </h1>
+<header>
+  <div class="header-badge">🎓</div>
+  <div>
+    <h1>教師 Gem 提示詞工坊</h1>
+    <p>為各年段 × 各科教師設計 · 一鍵生成 Gemini Gem 指令</p>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- 左欄：輸入設定 -->
+  <div>
+
+    <!-- 科目 × 年段選擇器 -->
+    <div class="card" style="margin-bottom:20px;">
+      <div class="card-header">
+        <span class="label">👩‍🏫 科目與年段</span>
+      </div>
+      <div class="card-body">
+        <div class="section-label">學科</div>
+        <div class="subject-row" id="subject-row">
+          <span class="subject-chip active" data-val="國語文">國語文</span>
+          <span class="subject-chip" data-val="英語">英語</span>
+          <span class="subject-chip" data-val="數學">數學</span>
+          <span class="subject-chip" data-val="自然科學">自然科學</span>
+          <span class="subject-chip" data-val="社會">社會</span>
+          <span class="subject-chip" data-val="歷史">歷史</span>
+          <span class="subject-chip" data-val="地理">地理</span>
+          <span class="subject-chip" data-val="公民">公民</span>
+          <span class="subject-chip" data-val="物理">物理</span>
+          <span class="subject-chip" data-val="化學">化學</span>
+          <span class="subject-chip" data-val="生物">生物</span>
+          <span class="subject-chip" data-val="體育">體育</span>
+          <span class="subject-chip" data-val="藝術">藝術</span>
+          <span class="subject-chip" data-val="資訊科技">資訊科技</span>
+          <span class="subject-chip" data-val="其他">其他</span>
         </div>
-    </header>
 
-    <!-- Main Content Area: 左右並排 -->
-    <main class="max-w-7xl mx-auto w-full flex-grow p-4 md:p-8 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        
-        <!-- 左側：輸入區域 -->
-        <section class="space-y-6 flex flex-col">
-            <!-- 模式切換按鈕 -->
-            <div class="bg-[#E5E1D1] p-1.5 rounded-2xl flex shadow-inner border border-[#D4AF37]/20">
-                <button id="btn-general" onclick="setMode('general')" class="flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg">
-                    ⚡ 一般模式 (靈感直覺敘述)
-                </button>
-                <button id="btn-expert" onclick="setMode('expert')" class="flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10">
-                    🧠 專家模式 (PARTS 框架)
-                </button>
+        <div class="section-label" style="margin-top:14px;">年段</div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-start;">
+          <!-- 國小 主按鈕 + 子選項包在一起 -->
+          <div id="grade-group-elementary" style="display:flex; flex-direction:column; gap:6px;">
+            <span class="grade-chip active" id="grade-elementary" onclick="selectGradeGroup('elementary')" data-val="">國小</span>
+            <!-- 子選項，預設顯示 -->
+            <div id="elementary-sub" style="display:flex; gap:5px; padding:4px 6px; background:var(--aged); border-radius:8px; border:1px solid var(--border);">
+              <span class="grade-sub-chip active" id="gsub-low" onclick="selectElementarySub('low')" data-val="國小低年級（1-2年級）">低年級</span>
+              <span class="grade-sub-chip" id="gsub-mid" onclick="selectElementarySub('mid')" data-val="國小中年級（3-4年級）">中年級</span>
+              <span class="grade-sub-chip" id="gsub-high" onclick="selectElementarySub('high')" data-val="國小高年級（5-6年級）">高年級</span>
             </div>
+          </div>
+          <span class="grade-chip" id="grade-juniorhigh" onclick="selectGradeGroup('juniorhigh')" data-val="國中（7-9年級）">國中</span>
+          <span class="grade-chip" id="grade-srhigh" onclick="selectGradeGroup('srhigh')" data-val="高中（10-12年級）">高中</span>
+        </div>
+      </div>
+    </div>
 
-            <!-- 輸入卡片 -->
-            <div class="bg-white p-6 rounded-3xl shadow-xl border border-[#E5E1D1] space-y-6">
-                
-                <!-- 一般模式輸入 -->
-                <div id="input-general" class="space-y-4">
-                    <div class="flex items-center justify-between text-[#8B4513] mb-2 font-bold uppercase tracking-widest text-sm border-b border-[#F4F1E9] pb-2">
-                        <span>" 老師的想法 (請用一句話描述)</span>
-                    </div>
-                    <textarea id="general-input" oninput="updateOutput()" class="w-full h-48 bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-2xl p-4 focus:border-[#D4AF37] outline-none transition-all resize-none text-lg leading-relaxed" placeholder="例如：我是高中歷史老師，我想規劃一趟『台南府城』的半日走讀行程..."></textarea>
-                    <p class="text-xs text-[#8B4513]/60 italic">填入您的身分與需求，系統將自動套用 PTCF 金鑰公式產出完整的 Gem 指令。</p>
-                </div>
+    <!-- 主輸入卡片 -->
+    <div class="card">
+      <div class="card-header">
+        <span class="label">⚙️ 提示詞設定</span>
+      </div>
+      <div class="card-body">
 
-                <!-- 專家模式輸入 (預設隱藏) -->
-                <div id="input-expert" class="hidden space-y-5">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">P - 您的身分 (Persona)</label>
-                            <input id="expert-identity" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高中地理老師">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">A - 執行目標 (Aim)</label>
-                            <input id="expert-aim" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="安排校外走讀行程與路線">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">R - 目標對象 (Recipients)</label>
-                            <input id="expert-recipients" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="高二學生">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest">S - 產出結構 (Structure)</label>
-                            <input id="expert-structure" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-b-2 border-[#E5E1D1] p-2 outline-none focus:border-[#D4AF37] transition-all" value="詳細的時間與地點表格">
-                        </div>
-                    </div>
-                    <div class="pt-2">
-                        <label class="block text-xs font-bold text-[#8B4513] mb-1 uppercase tracking-widest text-center">T - 教學主題 (Theme)</label>
-                        <input id="expert-theme" oninput="updateOutput()" class="w-full bg-[#FDFBF7] border-2 border-[#E5E1D1] rounded-xl p-3 outline-none focus:border-[#D4AF37] transition-all text-center font-bold text-lg" value="台北大稻埕的商業發展史">
-                    </div>
-                </div>
+        <!-- 模式切換 -->
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="btn-general" onclick="setMode('general')">
+            ⚡ 一般模式
+          </button>
+          <button class="mode-btn" id="btn-expert" onclick="setMode('expert')">
+            🧠 Google PARTS 模式
+          </button>
+        </div>
 
-                <!-- 進化層級按鈕列 -->
-                <div class="pt-6 border-t border-[#F4F1E9]">
-                    <label class="block text-center text-xs font-bold text-[#8B4513] mb-4 uppercase tracking-widest">進化層級 (Levels)</label>
-                    <div class="flex bg-[#F9F7F2] p-1.5 rounded-2xl gap-2">
-                        <button onclick="setLevel(1)" id="lvl-1" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all bg-[#8B4513] text-white shadow-lg">Level 1</button>
-                        <button onclick="setLevel(2)" id="lvl-2" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20">Level 2</button>
-                        <button onclick="setLevel(3)" id="lvl-3" class="lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20">Level 3</button>
-                    </div>
-                </div>
+        <!-- 一般模式 -->
+        <div id="panel-general">
+
+          <!-- 地圖功能開關 -->
+          <label class="map-toggle-row" id="map-toggle-row">
+            <input type="checkbox" id="general-map-check" onchange="toggleMapMode()">
+            <div class="map-toggle-label">
+              🗺️ 啟用 Google Maps 互動地圖觸發
+              <span class="map-badge">觸發 Gemini 側邊地圖</span>
+              <span>Gem 指令將加入可觸發 Gemini 地圖側邊欄的英文欄位格式</span>
             </div>
-        </section>
+          </label>
 
-        <!-- 右側：輸出區域 -->
-        <section class="flex flex-col h-full space-y-6">
-            <div class="bg-[#4A3728] text-[#F4F1E9] p-6 rounded-3xl shadow-2xl flex flex-col min-h-[500px] border-t-8 border-[#D4AF37] relative overflow-hidden h-full">
-                <!-- 裝飾性背景印記 -->
-                <div class="absolute -bottom-10 -right-10 opacity-5 pointer-events-none text-[#D4AF37]">
-                    <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/></svg>
-                </div>
+          <!-- 地圖場景選擇（勾選後顯示） -->
+          <div class="map-scenario-bar" id="general-map-scenarios">
+            <button class="map-scenario-btn active" id="gs-itinerary" onclick="setGeneralMapScenario('itinerary')">
+              <span class="ms-icon">🚶</span>
+              <span class="ms-title">走讀 / 校外教學行程</span>
+              <span class="ms-desc">含時間、地點、路線規劃</span>
+            </button>
+            <button class="map-scenario-btn" id="gs-landmark" onclick="setGeneralMapScenario('landmark')">
+              <span class="ms-icon">📍</span>
+              <span class="ms-title">歷史 / 地理景點標記</span>
+              <span class="ms-desc">史蹟、地形、文化地標</span>
+            </button>
+          </div>
 
-                <div class="flex justify-between items-center mb-5 relative z-10">
-                    <h3 class="text-lg font-bold flex items-center gap-2 tracking-widest">
-                        ✨ <span id="output-title">Gem 使用說明成品</span>
-                    </h3>
-                    <button onclick="copyToClipboard()" class="bg-[#D4AF37] hover:bg-[#B8962D] text-[#4A3728] px-5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-lg active:scale-95">
-                        <span id="copy-text">複製指令成品</span>
-                    </button>
-                </div>
-                
-                <div class="bg-[#3D2C1E] p-6 rounded-2xl overflow-y-auto flex-grow border border-white/5 custom-scrollbar relative z-10">
-                    <pre id="output-text" class="whitespace-pre-wrap font-mono text-sm leading-relaxed text-[#DCD6CC]"></pre>
-                </div>
+          <div class="section-label">老師的需求描述</div>
+          <textarea id="general-input" rows="6" oninput="updateOutput()" placeholder="例如：我希望當我輸入一個【城市名稱】時，你能幫我規劃一趟包含 4 個景點的半日走讀行程，並提供適合學生的歷史背景介紹...
+
+提示：用【括號】包住未來對話時才輸入的變數。"></textarea>
+          <p class="hint">系統將自動依您的描述套用 PTCF 公式，生成完整的 Gem 指令成品。用 <strong>【括號】</strong> 代表動態變數。</p>
+        </div>
+
+        <!-- PARTS 模式 -->
+        <div id="panel-expert" style="display:none;">
+          <div class="parts-grid">
+            <div>
+              <div class="field-label"><span class="parts-badge">P</span>您的角色身分 Persona</div>
+              <input type="text" id="expert-p" oninput="updateOutput()" value="高中地理老師">
             </div>
-
-            <!-- 層級說明卡片 -->
-            <div class="bg-[#D4AF37]/10 border-2 border-dashed border-[#D4AF37] p-5 rounded-2xl flex items-center gap-5 transition-all">
-                <div id="lvl-indicator" class="w-14 h-14 shrink-0 bg-[#8B4513] text-[#F4F1E9] rounded-full flex items-center justify-center text-2xl font-bold shadow-xl ring-4 ring-[#D4AF37]/20">1</div>
-                <div>
-                    <h4 id="lvl-title" class="font-bold text-[#8B4513] text-base mb-1">基礎寫作：專注於角色語氣。</h4>
-                    <p id="lvl-desc" class="text-xs md:text-sm opacity-90 leading-snug italic">這是一個紮實的起點，能確保 AI 給出專業且符合老師身分的回答。</p>
-                </div>
+            <div>
+              <div class="field-label"><span class="parts-badge">A</span>執行目標 Aim</div>
+              <input type="text" id="expert-a" oninput="updateOutput()" value="安排校外走讀行程與路線">
             </div>
-        </section>
-    </main>
+            <div>
+              <div class="field-label"><span class="parts-badge">R</span>目標對象 Recipients</div>
+              <input type="text" id="expert-r" oninput="updateOutput()" value="高二學生">
+            </div>
+            <div>
+              <div class="field-label"><span class="parts-badge">S</span>產出結構 Structure</div>
+              <input type="text" id="expert-s" oninput="updateOutput()" value="詳細的時間與地點表格">
+            </div>
+            <div class="full">
+              <div class="field-label"><span class="parts-badge">T</span>教學主題 / 動態變數 Theme</div>
+              <input type="text" id="expert-t" oninput="updateOutput()" value="我隨後輸入的【特定城市或地理區】">
+            </div>
+          </div>
 
-    <footer class="max-w-7xl mx-auto w-full text-center py-8 text-[#6B5B4B]/70 text-xs md:text-sm italic shrink-0 space-y-2">
-        <p class="font-bold border-t border-[#D4AF37]/30 pt-4">提示詞框架和引導是參考 @iamAImaster 和 Google PARTS</p>
-        <p>&copy; 2024 Raphael's Gallery | 將教學視為藝術的實驗場</p>
-    </footer>
+          <!-- Tools 選擇 -->
+          <div class="tools-section">
+            <div class="tools-title">🛠️ 附加 Gemini 工具（Level 2 / 3 適用）</div>
+            <div class="tools-grid">
+              <!-- Google Maps with scenario sub-selector -->
+              <div style="grid-column:1/-1; border:1.5px solid #B8DDE8; border-radius:8px; background:#F0F8FC; padding:10px 12px; margin-bottom:2px;">
+                <label class="tool-check checked" id="tc-maps" style="border:none; background:transparent; padding:0; margin-bottom:8px;">
+                  <input type="checkbox" checked onchange="updateOutput()"> <span class="tool-icon">🗺️</span> <span style="font-weight:700; color:#1A4D5E;">Google Maps 互動地圖</span>
+                </label>
+                <div class="map-scenario-bar visible" id="expert-map-scenarios" style="margin-bottom:0;">
+                  <button class="map-scenario-btn active" id="es-itinerary" onclick="setExpertMapScenario('itinerary')" style="min-width:0; padding:7px 10px;">
+                    <span class="ms-icon" style="font-size:16px;">🚶</span>
+                    <span class="ms-title">走讀行程</span>
+                    <span class="ms-desc">時間 × 地點 × 路線</span>
+                  </button>
+                  <button class="map-scenario-btn" id="es-landmark" onclick="setExpertMapScenario('landmark')" style="min-width:0; padding:7px 10px;">
+                    <span class="ms-icon" style="font-size:16px;">📍</span>
+                    <span class="ms-title">景點標記</span>
+                    <span class="ms-desc">史蹟 × 地形 × 文化</span>
+                  </button>
+                </div>
+              </div>
+              <label class="tool-check" id="tc-image">
+                <input type="checkbox" onchange="updateOutput()"> <span class="tool-icon">🖼️</span> Create Image
+              </label>
+              <label class="tool-check" id="tc-video">
+                <input type="checkbox" onchange="updateOutput()"> <span class="tool-icon">🎬</span> Create Video
+              </label>
+              <label class="tool-check" id="tc-music">
+                <input type="checkbox" onchange="updateOutput()"> <span class="tool-icon">🎵</span> Create Music
+              </label>
+              <label class="tool-check" id="tc-canvas">
+                <input type="checkbox" onchange="updateOutput()"> <span class="tool-icon">🖥️</span> Canvas 排版
+              </label>
+              <label class="tool-check" id="tc-research">
+                <input type="checkbox" onchange="updateOutput()"> <span class="tool-icon">🔬</span> Deep Research
+              </label>
+            </div>
+          </div>
 
-    <script>
-        // 狀態管理
-        let currentMode = 'general';
-        let currentLevel = 1;
+          <!-- Level 選擇 -->
+          <div class="level-section">
+            <div class="level-label">🎚 進化層級（決定輸出的豐富程度）</div>
+            <div class="level-cards">
+              <div class="level-card active" onclick="setLevel(1)" id="lv1">
+                <div class="lv-num">1</div>
+                <div class="lv-name">純文字</div>
+              </div>
+              <div class="level-card" onclick="setLevel(2)" id="lv2">
+                <div class="lv-num">2</div>
+                <div class="lv-name">表格強化</div>
+              </div>
+              <div class="level-card" onclick="setLevel(3)" id="lv3">
+                <div class="lv-num">3</div>
+                <div class="lv-name">全能工具</div>
+              </div>
+            </div>
+            <div class="level-desc" id="lv-desc">
+              📝 <strong>Level 1 — 純文字輸出</strong>：AI 以角色身分給出專業文字回應，適合需要簡潔乾淨輸出的場景。
+            </div>
+          </div>
+        </div>
 
-        // 初始化內容 (改成會觸發地圖行程的範例)
-        window.onload = () => {
-            document.getElementById('general-input').value = "我是高中歷史老師，我想規劃一趟『台南府城』的半日走讀行程，請幫我安排 4 個歷史景點的路線。";
-            updateOutput();
-        };
+      </div>
+    </div>
+  </div>
 
-        function setMode(mode) {
-            currentMode = mode;
-            const btnGen = document.getElementById('btn-general');
-            const btnExp = document.getElementById('btn-expert');
-            const inputGen = document.getElementById('input-general');
-            const inputExp = document.getElementById('input-expert');
-            const title = document.getElementById('output-title');
+  <!-- 右欄：輸出 -->
+  <div>
+    <div class="output-card">
+      <div class="output-header">
+        <div class="output-title">✨ Gem 指令成品</div>
+        <button class="copy-btn" id="copy-btn" onclick="copyOutput()">
+          <span>📋</span><span id="copy-text">複製成品</span>
+        </button>
+      </div>
+      <div class="output-body">
+        <div class="map-trigger-badge" id="map-trigger-badge">
+          <span style="font-size:20px;">🗺️</span>
+          <div>
+            <strong>此 Gem 已設定 Google Maps 互動地圖觸發</strong><br>
+            貼入 Gemini Gem 後，對話時 Gemini 將自動在右側開啟地圖側邊欄，標記所有地點。
+          </div>
+        </div>
+        <pre id="output-text">（請在左側填寫資訊，成品將即時顯示在此處）</pre>
+      </div>
+    </div>
 
-            if (mode === 'general') {
-                btnGen.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg";
-                btnExp.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10";
-                inputGen.classList.remove('hidden');
-                inputExp.classList.add('hidden');
-                title.innerText = "Gem 使用說明成品";
-            } else {
-                btnExp.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all bg-[#8B4513] text-white shadow-lg";
-                btnGen.className = "flex-1 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all text-[#8B4513] hover:bg-[#D4AF37]/10";
-                inputExp.classList.remove('hidden');
-                inputGen.classList.add('hidden');
-                title.innerText = "Gem 使用說明成品";
-            }
-            updateOutput();
-        }
+    <!-- Gemini 操作說明 -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-header">
+        <span class="label">📖 如何在 Gemini 建立 Gem？</span>
+      </div>
+      <div class="card-body" style="font-size:13px; line-height:1.9; color:var(--muted);">
+        <ol style="padding-left:18px; space-y:6px;">
+          <li style="margin-bottom:8px;">前往 <strong style="color:var(--rust);">gemini.google.com</strong>，點選左側的「<strong>Gem 管理員</strong>」。</li>
+          <li style="margin-bottom:8px;">按「<strong>建立新 Gem</strong>」，在「<strong>系統指示</strong>」欄位貼入右側產生的成品。</li>
+          <li style="margin-bottom:8px;">（選用）可為 Gem 設定名稱，例如「歷史走讀行程生成器」。</li>
+          <li style="margin-bottom:8px;">儲存後，在對話框輸入 <strong style="color:var(--rust);">【變數】</strong> 即可啟動任務！</li>
+        </ol>
+        <div style="background:var(--gold-pale); border:1px solid var(--gold); border-radius:8px; padding:10px 14px; margin-top:12px; font-size:12px; color:var(--rust-dark);">
+          💡 <strong>小提醒：</strong>若您在提示詞中選用了 Create Image、Create Video 等工具，請確認您的 Gemini 帳號已開啟這些功能（Gemini Advanced 用戶可使用全部功能）。
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function setLevel(lvl) {
-            currentLevel = lvl;
-            document.querySelectorAll('.lvl-btn').forEach((btn, idx) => {
-                if (idx + 1 === lvl) {
-                    btn.className = "lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all bg-[#8B4513] text-white shadow-lg";
-                } else {
-                    btn.className = "lvl-btn flex-1 py-3 rounded-xl text-xs font-bold transition-all text-[#8B4513] hover:bg-[#D4AF37]/20";
-                }
-            });
+</div>
 
-            const indicator = document.getElementById('lvl-indicator');
-            const title = document.getElementById('lvl-title');
-            const desc = document.getElementById('lvl-desc');
-            indicator.innerText = lvl;
+<footer>
+  <p>框架參考 @iamAImaster · Google PARTS Framework · 為台灣教師設計</p>
+</footer>
 
-            if (lvl === 1) {
-                title.innerText = "基礎寫作：專注於角色語氣。";
-                desc.innerText = "這是一個紮實的起點，能確保 AI 給出專業且符合老師身分的回答。";
-            } else if (lvl === 2) {
-                title.innerText = "進階排版：表格與素養思考。";
-                desc.innerText = "增加了結構化呈現，AI 會主動使用表格整理資訊，並在文末增加引導問題。";
-            } else {
-                title.innerText = "全能教育家：智慧工具與畫布連動。";
-                desc.innerText = "最強大的模式。系統會依據您的需求，自動引導 AI 呼叫合適的多媒體或研究工具 (如 Google Maps, Create video) 並優化 Canvas 排版。";
-            }
-            updateOutput();
-        }
+<script>
+let mode = 'general';
+let level = 1;
+let subject = '國語文';
+let grade = '國小低年級（1-2年級）';
+let gradeGroup = 'elementary'; // 'elementary' | 'juniorhigh' | 'srhigh'
+let elementarySub = 'low';
+let generalMapOn = false;
+let generalMapScenario = 'itinerary';
+let expertMapScenario = 'itinerary';
 
-        function updateOutput() {
-            let result = "";
-            if (currentMode === 'general') {
-                const input = document.getElementById('general-input').value;
-                const lowerInput = input.toLowerCase();
-                
-                // 動態偵測是否包含英文或雙語需求
-                const isEnglish = lowerInput.includes('英文') || lowerInput.includes('english') || lowerInput.includes('外語') || lowerInput.includes('雙語');
-                // 動態偵測是否包含數學或理化需求
-                const isMathScience = lowerInput.includes('數學') || lowerInput.includes('物理') || lowerInput.includes('化學') || lowerInput.includes('公式') || lowerInput.includes('方程式');
-                // 動態偵測是否包含地圖、行程、路線需求
-                const isMapTriggered = /(地圖|地標|導航|路線|google map|走讀|戶外教學|校外教學|行程)/.test(lowerInput);
+function selectGradeGroup(g) {
+  gradeGroup = g;
+  // Update main chip styles
+  ['elementary','juniorhigh','srhigh'].forEach(id => {
+    const el = document.getElementById('grade-' + id);
+    if (el) el.classList.toggle('active', id === g);
+  });
+  // Show/hide elementary sub-options
+  const sub = document.getElementById('elementary-sub');
+  sub.style.display = g === 'elementary' ? 'flex' : 'none';
+  // Set grade value
+  if (g === 'elementary') {
+    selectElementarySub(elementarySub);
+  } else if (g === 'juniorhigh') {
+    grade = '國中（7-9年級）';
+    syncPartsDefaults();
+    updateOutput();
+  } else {
+    grade = '高中（10-12年級）';
+    syncPartsDefaults();
+    updateOutput();
+  }
+}
 
-                // 動態偵測合適的擴充工具 (針對 Level 3)
-                let toolAction = "根據教學情境需求，主動評估並調用合適的工具（如 Deep research、Create image 等）來輔助內容，同時";
-                const tools = [];
-                if (/(影片|動畫|視頻|影音|微電影)/.test(lowerInput)) tools.push('Create video');
-                if (/(音樂|歌曲|配樂|旋律|音效|唱)/.test(lowerInput)) tools.push('Create music');
-                if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(lowerInput)) tools.push('Create image');
-                if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(lowerInput)) tools.push('Deep research');
-                if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(lowerInput)) tools.push('Guided learning');
-                if (isMapTriggered) tools.push('Google Maps 擴充功能');
-                
-                if (tools.length > 0) {
-                    toolAction = `主動調用 ${tools.join('、')} 來產出對應的教學資源，並`;
-                }
+function selectElementarySub(s) {
+  elementarySub = s;
+  ['low','mid','high'].forEach(id => {
+    const el = document.getElementById('gsub-' + id);
+    if (el) el.classList.toggle('active', id === s);
+  });
+  const vals = {
+    low: '國小低年級（1-2年級）',
+    mid: '國小中年級（3-4年級）',
+    high: '國小高年級（5-6年級）',
+  };
+  grade = vals[s];
+  syncPartsDefaults();
+  updateOutput();
+}
 
-                let formatText = "";
-                // ✨ 這裡完全致敬 AI Master 的地圖表格咒語 ✨
-                if (isMapTriggered) {
-                    formatText = "請輸出為一個表格，欄位務必包含「時間/順序 (Time)」、「地點 (Location)」、「教學價值 (Why It's Worth It)」、以及「Google Maps Link」。請務必觸發 Google Maps 擴充功能，將路線與景點直接渲染在右側的互動式地圖上。";
-                } else if (currentLevel === 1) {
-                    formatText = "請使用清晰的條列式或結構化段落呈現結果，確保易於閱讀。";
-                } else if (currentLevel === 2) {
-                    formatText = "請優先使用 Markdown 表格進行對照或呈現，並在最後提供 3 個素養導向的延伸思考題。";
-                } else {
-                    formatText = `請${toolAction}全面優化在 Canvas 上的排版與視覺美感${isEnglish ? '' : '（請嚴格確保 Canvas 內所有文字皆為繁體中文）'}。`;
-                }
-                
-                // 根據語系動態調整限制
-                const languageConstraint = isEnglish 
-                    ? "教學素材與題目請依教學需求主要使用「英文」，然而針對學生的輔助說明、提示或解析，請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體字。" 
-                    : "請務必一律使用台灣繁體中文 (zh-TW) 輸出所有內容，絕不可混雜簡體字。";
+// Init
+window.onload = () => {
+  document.getElementById('general-input').value = '我希望當我輸入一個【城市名稱】時，你能幫我規劃一趟包含 4 個景點的半日走讀行程，並提供適合學生的歷史背景介紹。';
+  initChips();
+  syncPartsDefaults();
+  updateOutput();
+};
 
-                const mathConstraint = isMathScience
-                    ? " 若涉及數學或理化公式，請務必使用標準 LaTeX 語法（行內 $...$，獨立 $$...$$）輸出，以確保符號正確渲染。"
-                    : "";
+function initChips() {
+  document.querySelectorAll('#subject-row .subject-chip').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('#subject-row .subject-chip').forEach(x => x.classList.remove('active'));
+      c.classList.add('active');
+      subject = c.dataset.val;
+      syncPartsDefaults();
+      updateOutput();
+    });
+  });
+  document.querySelectorAll('.tool-check').forEach(lbl => {
+    lbl.addEventListener('click', () => {
+      const cb = lbl.querySelector('input');
+      setTimeout(() => {
+        if (cb.checked) lbl.classList.add('checked');
+        else lbl.classList.remove('checked');
+        updateOutput();
+      }, 0);
+    });
+  });
+}
 
-                // 完全致敬 AI Master 的連續段落寫法 (Persona -> Task -> Context -> Format)
-                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保這不僅是教學建議，而是要實際產出最終的教材內容或規劃結果，並考慮學習者的認知程度。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}${mathConstraint}`;
-            } else {
-                const id = document.getElementById('expert-identity').value;
-                const aim = document.getElementById('expert-aim').value;
-                const rec = document.getElementById('expert-recipients').value;
-                const stru = document.getElementById('expert-structure').value;
-                const theme = document.getElementById('expert-theme').value;
+// 科目 × 年段對應的預設 PARTS 欄位
+const partsDefaults = {
+  // 格式：`${科目}|${年段群組}` → { p, a, r, s, t }
+  _get(subj, grp) {
+    const key = `${subj}|${grp}`;
+    return this[key] || this._fallback(subj, grp);
+  },
+  _fallback(subj, grp) {
+    const gradeLabel = { elementary:'國小學生', juniorhigh:'國中學生', srhigh:'高中學生' }[grp];
+    const gradeRange = { elementary:'國小（1-6年級）', juniorhigh:'國中（7-9年級）', srhigh:'高中（10-12年級）' }[grp];
+    return {
+      p: `${gradeRange.split('（')[0]}${subj}老師`,
+      a: `設計 ${subj} 教學活動與學習任務`,
+      r: gradeLabel,
+      s: '條列式重點搭配 Markdown 表格',
+      t: '我隨後輸入的【教學單元或主題】',
+    };
+  },
 
-                const combinedExpertInput = (id + aim + rec + stru + theme).toLowerCase();
+  // === 國語文 ===
+  '國語文|elementary': { p:'國小國語老師', a:'設計閱讀理解與寫作練習', r:'國小學生', s:'學習單格式，含提問與填空', t:'我隨後輸入的【課文篇名或主題】' },
+  '國語文|juniorhigh': { p:'國中國文老師', a:'設計文學賞析與作文引導', r:'國中學生', s:'賞析重點搭配寫作框架表格', t:'我隨後輸入的【課文篇名或主題】' },
+  '國語文|srhigh':     { p:'高中國文老師', a:'設計文本分析與議論寫作任務', r:'高中學生', s:'文本分析表搭配議題延伸', t:'我隨後輸入的【選文篇名或議題】' },
 
-                // 動態偵測專家模式中是否包含英文需求
-                const isEnglish = combinedExpertInput.includes('英文') || combinedExpertInput.includes('english') || combinedExpertInput.includes('雙語') || combinedExpertInput.includes('外語');
-                // 動態偵測專家模式中是否包含數理化需求
-                const isMathScience = combinedExpertInput.includes('數學') || combinedExpertInput.includes('物理') || combinedExpertInput.includes('化學') || combinedExpertInput.includes('公式') || combinedExpertInput.includes('方程式');
-                // 動態偵測專家模式中是否包含地圖需求
-                const isMapTriggered = /(地圖|地標|導航|路線|google map|走讀|戶外教學|校外教學|行程)/.test(combinedExpertInput);
-                
-                // 動態偵測合適的擴充工具 (針對 Level 3 專家模式)
-                let expertToolAction = "依據教學情境主動調用合適的工具（如 Deep research、Create image 等）";
-                const expertTools = [];
-                if (/(影片|動畫|視頻|影音|微電影)/.test(combinedExpertInput)) expertTools.push('Create video');
-                if (/(音樂|歌曲|配樂|旋律|音效|唱)/.test(combinedExpertInput)) expertTools.push('Create music');
-                if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(combinedExpertInput)) expertTools.push('Create image');
-                if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(combinedExpertInput)) expertTools.push('Deep research');
-                if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(combinedExpertInput)) expertTools.push('Guided learning');
-                if (isMapTriggered) expertTools.push('Google Maps 擴充功能');
-                
-                if (expertTools.length > 0) {
-                    expertToolAction = `主動調用 ${expertTools.join('、')} 製作相關教學輔助資源`;
-                }
+  // === 英語 ===
+  '英語|elementary': { p:'國小英語老師', a:'設計英語聽說讀寫活動', r:'國小學生', s:'圖文對照的學習任務單', t:'我隨後輸入的【英語主題或詞彙單元】' },
+  '英語|juniorhigh': { p:'國中英語老師', a:'設計英語閱讀測驗與文法練習', r:'國中學生', s:'閱讀測驗題組搭配文法重點表', t:'我隨後輸入的【英語主題或文法點】' },
+  '英語|srhigh':     { p:'高中英語老師', a:'設計英文閱讀分析與寫作練習', r:'高中學生', s:'閱讀分析表搭配引導式寫作框架', t:'我隨後輸入的【英語議題或課文單元】' },
 
-                const languageConstraint = isEnglish
-                    ? "1. 語言防護：教學素材與題目請依需求使用「英文」，但教師端的說明與解析請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體中文。"
-                    : "1. 語言防護：請務必「一律使用台灣繁體中文 (zh-TW)」產出所有內容（包含 Canvas 畫布排版與圖片說明），絕不可混雜簡體中文。";
+  // === 數學 ===
+  '數學|elementary': { p:'國小數學老師', a:'設計數學概念引導與練習題', r:'國小學生', s:'步驟說明搭配練習題組', t:'我隨後輸入的【數學單元或概念】' },
+  '數學|juniorhigh': { p:'國中數學老師', a:'設計數學概念教學與題型解析', r:'國中學生', s:'觀念說明搭配例題與變化題', t:'我隨後輸入的【數學章節或題型】' },
+  '數學|srhigh':     { p:'高中數學老師', a:'設計數學概念深化與解題策略', r:'高中學生', s:'定理說明、例題解析、延伸練習表格', t:'我隨後輸入的【數學單元或考題類型】' },
 
-                let extraIndex = 2;
-                let formatConstraint = "";
+  // === 歷史 ===
+  '歷史|juniorhigh': { p:'國中歷史老師', a:'設計歷史事件脈絡分析與時間軸', r:'國中學生', s:'時間軸搭配事件因果分析表', t:'我隨後輸入的【歷史時期或事件】' },
+  '歷史|srhigh':     { p:'高中歷史老師', a:'設計歷史議題探究與史料分析', r:'高中學生', s:'史料分析表搭配議題討論框架', t:'我隨後輸入的【歷史議題或時代】' },
 
-                // ✨ 專家模式加入地圖強制表格邏輯 ✨
-                if (isMapTriggered) {
-                    formatConstraint += `${extraIndex}. 地圖行程排版：請輸出為一個表格，欄位包含「時間/順序 (Time)」、「地點 (Location)」、「教學價值 (Why It's Worth It)」與「Google Maps Link」，並確保呼叫 Google Maps 擴充功能將景點顯示於右側地圖上。\n`;
-                    extraIndex++;
-                } else if (currentLevel >= 2) {
-                    formatConstraint += `${extraIndex}. 排版強化：請優先使用 Markdown 表格呈現，並提供延伸思考問題。\n`;
-                    extraIndex++;
-                }
+  // === 地理 ===
+  '地理|juniorhigh': { p:'國中地理老師', a:'安排地理主題教學與實地走讀行程', r:'國中學生', s:'詳細的時間與地點表格', t:'我隨後輸入的【特定城市或地理區】' },
+  '地理|srhigh':     { p:'高中地理老師', a:'安排校外走讀行程與地理考察任務', r:'高中學生', s:'詳細的時間與地點表格', t:'我隨後輸入的【特定城市或地理區】' },
 
-                if (currentLevel === 3) {
-                    formatConstraint += `${extraIndex}. 智慧工具與畫布：請${expertToolAction}，並針對 Canvas 格式進行整體視覺與排版的優化。\n`;
-                    extraIndex++;
-                }
-                
-                const mathConstraint = isMathScience
-                    ? `${extraIndex}. 公式排版：若涉及數學或理化公式，請務必使用標準 LaTeX 語法（行內 $...$，獨立 $$...$$）輸出，確保符號正確渲染。`
-                    : "";
+  // === 公民 ===
+  '公民|juniorhigh': { p:'國中公民老師', a:'設計公民議題討論與價值澄清活動', r:'國中學生', s:'議題分析表搭配討論引導問題', t:'我隨後輸入的【公民議題或時事】' },
+  '公民|srhigh':     { p:'高中公民老師', a:'設計公民與社會議題分析與辯論框架', r:'高中學生', s:'多元觀點比較表搭配論點架構', t:'我隨後輸入的【社會議題或政策主題】' },
 
-                result = `你是一位專業的教育 AI 助手。請根據以下 PARTS 框架執行任務：
+  // === 自然科學 ===
+  '自然科學|elementary': { p:'國小自然科老師', a:'設計自然觀察與科學探究活動', r:'國小學生', s:'觀察紀錄單搭配引導提問', t:'我隨後輸入的【自然主題或生活現象】' },
+  '自然科學|juniorhigh': { p:'國中自然科老師', a:'設計科學概念教學與實驗活動', r:'國中學生', s:'概念說明搭配實驗步驟表', t:'我隨後輸入的【自然科學單元】' },
 
-[P] Persona (角色身分)：
-你是一位專業的「${id}」，具備豐富的教學經驗，擅長以引導式教學啟發學生。
+  // === 物理 / 化學 / 生物 ===
+  '物理|srhigh': { p:'高中物理老師', a:'設計物理概念教學與解題策略', r:'高中學生', s:'定律說明、公式整理、例題解析表', t:'我隨後輸入的【物理單元或題型】' },
+  '化學|srhigh': { p:'高中化學老師', a:'設計化學概念教學與實驗說明', r:'高中學生', s:'概念摘要搭配反應方程式與例題表', t:'我隨後輸入的【化學單元或反應類型】' },
+  '生物|srhigh': { p:'高中生物老師', a:'設計生物概念教學與圖解分析', r:'高中學生', s:'概念圖搭配重點整理表格', t:'我隨後輸入的【生物單元或主題】' },
 
-[A] Aim (執行目標)：
-你的核心任務是協助老師「實際產出」並「直接執行」以下目標，請勿僅提供教學建議：「${aim}」
+  // === 社會 ===
+  '社會|elementary': { p:'國小社會科老師', a:'設計社會生活主題探索活動', r:'國小學生', s:'主題心智圖搭配討論引導單', t:'我隨後輸入的【社會主題或生活議題】' },
+  '社會|juniorhigh': { p:'國中社會科老師', a:'設計跨領域社會議題探究任務', r:'國中學生', s:'議題分析表搭配多元觀點比較', t:'我隨後輸入的【社會議題或主題】' },
+};
 
-[R] Recipients (對象)：
-產出的內容是專為「${rec}」設計的，請確保遣詞用字符合該年齡層的認知程度。
+function syncPartsDefaults() {
+  // 只有當 PARTS 欄位內容是「系統預設值」時才自動更新（避免覆蓋老師自己改過的內容）
+  const defaults = partsDefaults._get(subject, gradeGroup);
+  const pEl = document.getElementById('expert-p');
+  const aEl = document.getElementById('expert-a');
+  const rEl = document.getElementById('expert-r');
+  const sEl = document.getElementById('expert-s');
+  const tEl = document.getElementById('expert-t');
 
-[T] Theme (教學主題)：
-所有的內容請圍繞著「${theme}」展開。
+  // 檢查是否為任何已知預設值（如果老師自己改過就不動）
+  const isDefaultValue = (el, field) => {
+    const allDefaults = Object.values(partsDefaults)
+      .filter(v => typeof v === 'object' && v[field])
+      .map(v => v[field]);
+    return allDefaults.includes(el.value.trim()) || el.value.trim() === '';
+  };
 
-[S] Structure (結構格式)：
-請以「${stru}」呈現結果。
+  if (isDefaultValue(pEl, 'p')) pEl.value = defaults.p;
+  if (isDefaultValue(aEl, 'a')) aEl.value = defaults.a;
+  if (isDefaultValue(rEl, 'r')) rEl.value = defaults.r;
+  if (isDefaultValue(sEl, 's')) sEl.value = defaults.s;
+  if (isDefaultValue(tEl, 't')) tEl.value = defaults.t;
+}
 
-[語言與額外要求]
-${languageConstraint}
-${formatConstraint}${mathConstraint}`.trim();
-            }
-            document.getElementById('output-text').innerText = result;
-        }
+function toggleMapMode() {
+  const cb = document.getElementById('general-map-check');
+  generalMapOn = cb.checked;
+  const row = document.getElementById('map-toggle-row');
+  const scenarios = document.getElementById('general-map-scenarios');
+  if (generalMapOn) {
+    row.classList.add('active');
+    scenarios.classList.add('visible');
+  } else {
+    row.classList.remove('active');
+    scenarios.classList.remove('visible');
+  }
+  updateOutput();
+}
 
-        function copyToClipboard() {
-            const text = document.getElementById('output-text').innerText;
-            const btn = document.getElementById('copy-text');
-            
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
+function setGeneralMapScenario(s) {
+  generalMapScenario = s;
+  document.getElementById('gs-itinerary').classList.toggle('active', s === 'itinerary');
+  document.getElementById('gs-landmark').classList.toggle('active', s === 'landmark');
+  updateOutput();
+}
 
-            const oldText = btn.innerText;
-            btn.innerText = "✅ 已成功複製成品";
-            setTimeout(() => {
-                btn.innerText = oldText;
-            }, 2000);
-        }
-    </script>
+function setExpertMapScenario(s) {
+  expertMapScenario = s;
+  document.getElementById('es-itinerary').classList.toggle('active', s === 'itinerary');
+  document.getElementById('es-landmark').classList.toggle('active', s === 'landmark');
+  updateOutput();
+}
+
+function setMode(m) {
+  mode = m;
+  if (m === 'general') {
+    document.getElementById('btn-general').classList.add('active');
+    document.getElementById('btn-expert').classList.remove('active');
+    document.getElementById('panel-general').style.display = '';
+    document.getElementById('panel-expert').style.display = 'none';
+  } else {
+    document.getElementById('btn-expert').classList.add('active');
+    document.getElementById('btn-general').classList.remove('active');
+    document.getElementById('panel-expert').style.display = '';
+    document.getElementById('panel-general').style.display = 'none';
+  }
+  updateOutput();
+}
+
+function setLevel(l) {
+  level = l;
+  ['lv1','lv2','lv3'].forEach((id, i) => {
+    document.getElementById(id).classList.toggle('active', i+1 === l);
+  });
+  const descs = {
+    1: '📝 <strong>Level 1 — 純文字輸出</strong>：AI 以角色身分給出專業文字回應，適合需要簡潔乾淨輸出的場景。',
+    2: '📊 <strong>Level 2 — 表格強化</strong>：AI 主動以 Markdown 表格呈現資訊，並在文末附上素養導向延伸思考題。',
+    3: '🚀 <strong>Level 3 — 全能工具模式</strong>：AI 依需求自動調用上方勾選的工具（Create Image / Video / Music / Canvas 等），並優化 Canvas 視覺排版。',
+  };
+  document.getElementById('lv-desc').innerHTML = descs[l];
+  updateOutput();
+}
+
+function getCheckedTools() {
+  const map = {
+    'tc-image': 'Create Image',
+    'tc-video': 'Create Video',
+    'tc-music': 'Create Music',
+    'tc-canvas': 'Canvas 畫布排版',
+    'tc-research': 'Deep Research',
+  };
+  return Object.entries(map)
+    .filter(([id]) => document.getElementById(id)?.querySelector('input')?.checked)
+    .map(([, name]) => name);
+}
+
+function isExpertMapOn() {
+  const cb = document.getElementById('tc-maps')?.querySelector('input');
+  return cb ? cb.checked : true; // default checked
+}
+
+function detectKeywords(text) {
+  const t = text.toLowerCase();
+  return {
+    isEnglish: /英文|english|雙語|外語/.test(t),
+    isMath: /數學|物理|化學|公式|方程式/.test(t),
+    isImage: /圖片|圖解|繪圖|配圖|照片|示意圖/.test(t),
+    isVideo: /影片|動畫|視頻|影音|微電影/.test(t),
+    isMusic: /音樂|歌曲|配樂|旋律|音效/.test(t),
+    isResearch: /研究|文獻|深入探討|考據|深度報告/.test(t),
+  };
+}
+
+function buildLanguageClause(isEnglish) {
+  return isEnglish
+    ? '語言要求：教學素材請依需求使用英文；教師端說明與解析請使用台灣繁體中文（zh-TW），絕不混雜簡體字。'
+    : '語言要求：所有輸出請一律使用台灣繁體中文（zh-TW），絕不混雜簡體字。';
+}
+
+function buildMathClause(isMath) {
+  return isMath ? '公式排版：若涉及數學或理化公式，請使用標準 LaTeX 語法（行內 $...$，獨立 $$...$$）以確保正確渲染。' : '';
+}
+
+// 兩種地圖指令模板
+function buildMapDirective(scenario) {
+  if (scenario === 'landmark') {
+    return `【System Directive: You MUST use the Google Maps extension to locate and display all historical and geographical landmarks.】
+Format: Output as a Markdown table with EXACTLY these English column headers:
+| Location | Era / Period | Significance | Category | Google Maps Link |
+(⚠️ Keep all column headers in English to trigger the Gemini Maps interface. Provide a "View on Maps" link for every row.)
+After the table, provide a brief narrative summary in Traditional Chinese (zh-TW).`;
+  }
+  // default: itinerary
+  return `【System Directive: You MUST use the Google Maps extension to plan routes and fetch accurate location data.】
+Format: Output as a Markdown table with EXACTLY these English column headers:
+| Time | Location | Why It's Worth It | Google Maps Link |
+(⚠️ Keep all column headers in English to trigger the Gemini Maps interface. Provide a "View on Maps" link for every row.)
+After the table, provide a brief narrative summary in Traditional Chinese (zh-TW).`;
+}
+
+function buildToolsClause(tools) {
+  if (!tools.length) return '';
+  return `多媒體工具：請主動調用 ${tools.join('、')}，依任務內容生成相應的輔助教材或視覺資源。`;
+}
+
+function buildCanvasClause(tools) {
+  if (!tools.includes('Canvas 畫布排版')) return '';
+  return 'Canvas 排版：請針對 Canvas 格式進行整體視覺與排版優化，讓內容在 Canvas 上呈現美觀易讀。';
+}
+
+function buildLevel2Clause() {
+  return '排版強化：請優先以 Markdown 表格呈現資訊，並在文末提供 2-3 題素養導向延伸思考問題。';
+}
+
+function showMapBadge(show) {
+  document.getElementById('map-trigger-badge').classList.toggle('visible', show);
+}
+
+function updateOutput() {
+  let result = '';
+  const tools = getCheckedTools();
+  let mapActive = false;
+
+  if (mode === 'general') {
+    const input = document.getElementById('general-input').value.trim();
+    if (!input) { document.getElementById('output-text').textContent = '（請在左側輸入您的需求）'; showMapBadge(false); return; }
+    const kw = detectKeywords(input);
+
+    // Auto-detect other tools from text
+    const autoTools = [...tools];
+    if (kw.isImage && !autoTools.includes('Create Image')) autoTools.push('Create Image');
+    if (kw.isVideo && !autoTools.includes('Create Video')) autoTools.push('Create Video');
+    if (kw.isMusic && !autoTools.includes('Create Music')) autoTools.push('Create Music');
+    if (kw.isResearch && !autoTools.includes('Deep Research')) autoTools.push('Deep Research');
+
+    const langClause = buildLanguageClause(kw.isEnglish);
+    const mathClause = buildMathClause(kw.isMath);
+
+    let formatText = '';
+    if (generalMapOn) {
+      mapActive = true;
+      formatText = buildMapDirective(generalMapScenario);
+    } else if (autoTools.length > 0) {
+      formatText = `輸出格式：請優先使用 Markdown 表格排版，並${buildToolsClause(autoTools)}在適當情況下於文末附上延伸思考題。`;
+    } else {
+      formatText = '輸出格式：請優先使用 Markdown 表格排版，在適當情況下於文末附上延伸思考題。';
+    }
+
+    result = `你是一位具備豐富教學經驗的 ${subject} 教育專家，擅長為 ${grade} 設計教材。你的任務是協助我完成以下教學需求：
+
+${input}
+
+教學脈絡（Context）：請確保這不僅是建議，而是直接產出最終內容；請依學生的認知程度調整用語，確保資訊正確。
+
+${langClause}${mathClause ? '\n\n' + mathClause : ''}
+
+${formatText}`;
+
+  } else {
+    // PARTS mode
+    const p = document.getElementById('expert-p').value.trim();
+    const a = document.getElementById('expert-a').value.trim();
+    const r = document.getElementById('expert-r').value.trim();
+    const s = document.getElementById('expert-s').value.trim();
+    const t = document.getElementById('expert-t').value.trim();
+    const combined = [p, a, r, s, t].join(' ');
+    const kw = detectKeywords(combined);
+    const expertMapEnabled = isExpertMapOn();
+
+    const langClause = buildLanguageClause(kw.isEnglish);
+    const mathClause = buildMathClause(kw.isMath);
+
+    let extraClauses = [];
+    extraClauses.push('1. ' + langClause);
+    if (mathClause) extraClauses.push(`${extraClauses.length + 1}. ` + mathClause);
+
+    if (expertMapEnabled) {
+      mapActive = true;
+      extraClauses.push(`${extraClauses.length + 1}. 地圖格式：\n${buildMapDirective(expertMapScenario)}`);
+    } else {
+      if (level >= 2) extraClauses.push(`${extraClauses.length + 1}. ${buildLevel2Clause()}`);
+      if (level >= 3 && tools.length > 0) {
+        extraClauses.push(`${extraClauses.length + 1}. ${buildToolsClause(tools)}`);
+        const canvasClause = buildCanvasClause(tools);
+        if (canvasClause) extraClauses.push(`${extraClauses.length + 1}. ${canvasClause}`);
+      }
+    }
+
+    result = `你是一位專業的教育 AI 助手。請根據以下 PARTS 框架執行任務：
+
+[P] Persona（角色身分）：
+你是一位專業的「${subject} ${p}」，服務對象為 ${grade}，具備豐富教學經驗，擅長引導式教學。
+
+[A] Aim（執行目標）：
+你是一個「自動化生成器」。你的核心任務是「直接產出」以下目標，切勿以顧問口吻提供建議：
+「${a}」
+
+[R] Recipients（目標對象）：
+產出的內容是專為「${r}（${grade}）」設計的，遣詞用字請符合該年齡層的認知程度。
+
+[T] Theme（教學主題 / 動態變數）：
+所有內容請圍繞「${t}」展開。當我開始對話並輸入具體變數時，請立即開始作業。
+
+[S] Structure（產出結構）：
+請以「${s}」呈現結果。
+
+---
+【額外規範】
+${extraClauses.join('\n')}`;
+  }
+
+  const el = document.getElementById('output-text');
+  el.textContent = result;
+  el.classList.remove('output-flash');
+  void el.offsetWidth;
+  el.classList.add('output-flash');
+  showMapBadge(mapActive);
+}
+
+function copyOutput() {
+  const text = document.getElementById('output-text').textContent;
+  const btn = document.getElementById('copy-btn');
+  const label = document.getElementById('copy-text');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('success');
+    label.textContent = '✅ 已複製！';
+    setTimeout(() => { btn.classList.remove('success'); label.textContent = '複製成品'; }, 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.classList.add('success');
+    label.textContent = '✅ 已複製！';
+    setTimeout(() => { btn.classList.remove('success'); label.textContent = '複製成品'; }, 2000);
+  });
+}
+</script>
 </body>
 </html>
