@@ -203,8 +203,8 @@
                 title.innerText = "進階排版：表格與素養思考。";
                 desc.innerText = "增加了結構化呈現，AI 會主動使用表格整理資訊，並在文末增加引導問題。";
             } else {
-                title.innerText = "全能教育家：圖像生成與畫布連動。";
-                desc.innerText = "最強大的模式。AI 會主動為您的教學內容繪製配圖，並優化在 Canvas 上的顯示。";
+                title.innerText = "全能教育家：智慧工具與畫布連動。";
+                desc.innerText = "最強大的模式。系統會依據您的需求，自動引導 AI 呼叫合適的多媒體或研究工具 (如 Create video, Deep research 等) 並優化 Canvas 排版。";
             }
             updateOutput();
         }
@@ -213,11 +213,27 @@
             let result = "";
             if (currentMode === 'general') {
                 const input = document.getElementById('general-input').value;
+                const lowerInput = input.toLowerCase();
                 
                 // 動態偵測是否包含英文或雙語需求
-                const isEnglish = input.includes('英文') || input.includes('English') || input.includes('外語') || input.includes('雙語');
+                const isEnglish = lowerInput.includes('英文') || lowerInput.includes('english') || lowerInput.includes('外語') || lowerInput.includes('雙語');
                 // 動態偵測是否包含數學或理化需求
-                const isMathScience = input.includes('數學') || input.includes('物理') || input.includes('化學') || input.includes('公式') || input.includes('方程式');
+                const isMathScience = lowerInput.includes('數學') || lowerInput.includes('物理') || lowerInput.includes('化學') || lowerInput.includes('公式') || lowerInput.includes('方程式');
+
+                // 動態偵測合適的擴充工具 (針對 Level 3)
+                let toolAction = "根據教學情境需求，主動評估並調用合適的工具（如 Deep research、Create image 等）來輔助內容，同時";
+                const tools = [];
+                if (/(影片|動畫|視頻|影音|微電影)/.test(lowerInput)) tools.push('Create video');
+                if (/(音樂|歌曲|配樂|旋律|音效|唱)/.test(lowerInput)) tools.push('Create music');
+                if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(lowerInput)) tools.push('Create image');
+                if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(lowerInput)) tools.push('Deep research');
+                if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(lowerInput)) tools.push('Guided learning');
+                if (/(地圖|地標|導航|路線|google map)/.test(lowerInput)) tools.push('Google Maps 擴充功能');
+                
+                if (tools.length > 0) {
+                    let mapsConstraint = tools.includes('Google Maps 擴充功能') ? " (請務必直接在畫面上生成包含景點標示的互動式 Google 地圖，並提供具體地點連結)" : "";
+                    toolAction = `主動調用 ${tools.join('、')} 來產出對應的教學資源${mapsConstraint}，並`;
+                }
 
                 let formatText = "";
                 if (currentLevel === 1) {
@@ -225,7 +241,7 @@
                 } else if (currentLevel === 2) {
                     formatText = "請優先使用 Markdown 表格進行對照或呈現，並在最後提供 3 個素養導向的延伸思考題。";
                 } else {
-                    formatText = `請主動調用 image_generation 工具產出教材配圖（建議使用科學圖解或古典繪畫風格），並優化在 Canvas 上的排版美感${isEnglish ? '' : '（請嚴格確保 Canvas 內所有文字皆為繁體中文）'}。`;
+                    formatText = `請${toolAction}全面優化在 Canvas 上的排版與視覺美感${isEnglish ? '' : '（請嚴格確保 Canvas 內所有文字皆為繁體中文）'}。`;
                 }
                 
                 // 根據語系動態調整限制
@@ -238,7 +254,7 @@
                     : "";
 
                 // 完全致敬 AI Master 的連續段落寫法 (Persona -> Task -> Context -> Format)
-                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保產出的內容符合教育現場所需，並考慮學習者的認知程度，若資訊不足請主動給予專業建議。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}${mathConstraint}`;
+                result = `你是一位具備豐富教學經驗的教育專家，專精於教材開發與啟發式教學。你的任務是協助我完成以下教學需求：${input} 教學脈絡 (Context)：請確保這不僅是教學建議，而是要實際產出最終的教材內容或規劃結果，並考慮學習者的認知程度。語言要求 (Language)：${languageConstraint} 輸出格式 (Format)：${formatText}${mathConstraint}`;
             } else {
                 const id = document.getElementById('expert-identity').value;
                 const aim = document.getElementById('expert-aim').value;
@@ -246,11 +262,28 @@
                 const stru = document.getElementById('expert-structure').value;
                 const theme = document.getElementById('expert-theme').value;
 
+                const combinedExpertInput = (id + aim + rec + stru + theme).toLowerCase();
+
                 // 動態偵測專家模式中是否包含英文需求
-                const isEnglish = id.includes('英文') || aim.includes('英文') || theme.includes('英文') || stru.includes('雙語') || stru.includes('英文');
+                const isEnglish = combinedExpertInput.includes('英文') || combinedExpertInput.includes('english') || combinedExpertInput.includes('雙語') || combinedExpertInput.includes('外語');
                 // 動態偵測專家模式中是否包含數理化需求
-                const isMathScience = id.includes('數學') || id.includes('物理') || id.includes('化學') || aim.includes('公式') || theme.includes('方程式') || theme.includes('物理') || theme.includes('化學') || theme.includes('數學') || stru.includes('公式');
+                const isMathScience = combinedExpertInput.includes('數學') || combinedExpertInput.includes('物理') || combinedExpertInput.includes('化學') || combinedExpertInput.includes('公式') || combinedExpertInput.includes('方程式');
                 
+                // 動態偵測合適的擴充工具 (針對 Level 3 專家模式)
+                let expertToolAction = "依據教學情境主動調用合適的工具（如 Deep research、Create image 等）";
+                const expertTools = [];
+                if (/(影片|動畫|視頻|影音|微電影)/.test(combinedExpertInput)) expertTools.push('Create video');
+                if (/(音樂|歌曲|配樂|旋律|音效|唱)/.test(combinedExpertInput)) expertTools.push('Create music');
+                if (/(圖片|圖解|繪圖|配圖|照片|畫|示意圖)/.test(combinedExpertInput)) expertTools.push('Create image');
+                if (/(研究|文獻|深入探討|考據|深度報告|論文)/.test(combinedExpertInput)) expertTools.push('Deep research');
+                if (/(引導|家教|互動|逐步|問答|對話式教學)/.test(combinedExpertInput)) expertTools.push('Guided learning');
+                if (/(地圖|地標|導航|路線|google map)/.test(combinedExpertInput)) expertTools.push('Google Maps 擴充功能');
+                
+                if (expertTools.length > 0) {
+                    let mapsConstraint = expertTools.includes('Google Maps 擴充功能') ? " (請務必直接在畫面上生成包含景點標示的互動式 Google 地圖)" : "";
+                    expertToolAction = `主動調用 ${expertTools.join('、')} 製作相關教學輔助資源${mapsConstraint}`;
+                }
+
                 const languageConstraint = isEnglish
                     ? "1. 語言防護：教學素材與題目請依需求使用「英文」，但教師端的說明與解析請使用「台灣繁體中文 (zh-TW)」，絕不可混雜簡體中文。"
                     : "1. 語言防護：請務必「一律使用台灣繁體中文 (zh-TW)」產出所有內容（包含 Canvas 畫布排版與圖片說明），絕不可混雜簡體中文。";
@@ -262,7 +295,7 @@
                     extraIndex++;
                 }
                 if (currentLevel === 3) {
-                    formatConstraint += `${extraIndex}. 視覺與畫布：主動調用繪圖工具製作教學配圖，並針對 Canvas 格式進行優化。\n`;
+                    formatConstraint += `${extraIndex}. 智慧工具與畫布：請${expertToolAction}，並針對 Canvas 格式進行整體視覺與排版的優化。\n`;
                     extraIndex++;
                 }
                 
@@ -276,7 +309,7 @@
 你是一位專業的「${id}」，具備豐富的教學經驗，擅長以引導式教學啟發學生。
 
 [A] Aim (執行目標)：
-你的核心任務是協助老師「${aim}」，確保內容準確且具備教育價值。
+你的核心任務是協助老師「實際產出」並「直接執行」以下目標，請勿僅提供教學建議：「${aim}」
 
 [R] Recipients (對象)：
 產出的內容是專為「${rec}」設計的，請確保遣詞用字符合該年齡層的認知程度。
